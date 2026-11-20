@@ -1,0 +1,129 @@
+
+<!DOCTYPE html>
+<html lang="az">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>Universal Document Converter PRO</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0b1120;color:#f1f5f9;font-family:Arial,sans-serif}
+header{padding:24px 18px;background:#111c30;border-bottom:1px solid #263449}
+h1{font-size:23px;margin:0 0 8px}
+header p{color:#9eacc1;font-size:13px;margin:0}
+main{padding:18px;max-width:700px;margin:auto}
+.card{background:#131f33;border:1px solid #293951;border-radius:15px;padding:17px;margin-bottom:16px}
+h2{font-size:17px;margin:0 0 14px}
+button,.filebtn{display:block;width:100%;padding:14px;border:0;border-radius:10px;background:#2563eb;color:white;font-size:15px;font-weight:bold;text-align:center;margin-top:10px}
+button:disabled{opacity:.4}
+input{display:none}
+.info{color:#aab8ca;font-size:13px;line-height:1.6}
+#preview{white-space:pre-wrap;overflow-wrap:anywhere;background:#0b1424;padding:12px;border-radius:9px;max-height:300px;overflow:auto;font-size:13px}
+#status{color:#67e8a5;font-size:13px}
+footer{text-align:center;color:#718096;font-size:12px;padding:25px}
+</style>
+</head>
+<body>
+<header>
+<h1>Universal Document Converter PRO</h1>
+<p>Peşəkar sənəd emalı platforması</p>
+</header>
+
+<main>
+<section class="card">
+<h2>📂 Sənəd seçimi</h2>
+<p class="info">Cihazından emal etmək istədiyin faylı seç.</p>
+<label class="filebtn" for="file">FAYL SEÇ</label>
+<input id="file" type="file" accept=".pdf,.doc,.docx,.txt">
+<div id="details" class="info">Hələ fayl seçilməyib.</div>
+</section>
+
+<section class="card">
+<h2>⚙️ Sənəd məlumatları</h2>
+<div id="status">Sistem hazırdır.</div>
+<div id="preview">Sənədin məzmunu burada görünəcək.</div>
+</section>
+
+<section class="card">
+<h2>📄 Mövcud əməliyyat</h2>
+<button id="read" disabled>Mətni oxu</button>
+<button id="print" disabled>Çap / PDF kimi saxla</button>
+<button id="clear">Təmizlə</button>
+<p class="info">Qeyd: Bu ilkin versiyada TXT faylları oxunur. PDF və Word çevirmə mühərrikləri hələ əlavə edilməyib.</p>
+</section>
+</main>
+
+<footer>Universal Document Converter PRO · Local File Processing</footer>
+
+<script>
+const fileInput=document.getElementById('file');
+const details=document.getElementById('details');
+const preview=document.getElementById('preview');
+const status=document.getElementById('status');
+const readBtn=document.getElementById('read');
+const printBtn=document.getElementById('print');
+let selectedFile=null;
+
+fileInput.addEventListener('change',()=>{
+ selectedFile=fileInput.files[0]||null;
+ preview.textContent='Sənədin məzmunu burada görünəcək.';
+ if(!selectedFile){
+  details.textContent='Hələ fayl seçilməyib.';
+  readBtn.disabled=true;
+  printBtn.disabled=true;
+  return;
+ }
+ const size=(selectedFile.size/1024).toFixed(2);
+ details.textContent='Ad: '+selectedFile.name+
+ '\nÖlçü: '+size+' KB'+
+ '\nFormat: '+(selectedFile.name.split('.').pop()||'Naməlum').toUpperCase();
+ status.textContent='Fayl uğurla seçildi.';
+ readBtn.disabled=false;
+ printBtn.disabled=false;
+});
+
+readBtn.addEventListener('click',()=>{
+ if(!selectedFile)return;
+ const ext=selectedFile.name.split('.').pop().toLowerCase();
+ if(ext!=='txt'){
+  status.textContent='Bu format üçün oxuma mühərriki növbəti mərhələdə əlavə ediləcək.';
+  return;
+ }
+ const reader=new FileReader();
+ reader.onload=()=>{
+  preview.textContent=reader.result;
+  status.textContent='Mətn uğurla oxundu.';
+ };
+ reader.onerror=()=>status.textContent='Fayl oxunmadı.';
+ reader.readAsText(selectedFile);
+});
+
+printBtn.addEventListener('click',()=>{
+ const content=preview.textContent;
+ if(content==='Sənədin məzmunu burada görünəcək.'){
+  status.textContent='Əvvəlcə oxuna bilən mətn faylı seç və Mətni oxu düyməsinə bas.';
+  return;
+ }
+ const w=window.open('','_blank');
+ if(!w){status.textContent='Çap pəncərəsi brauzer tərəfindən bloklandı.';return;}
+ const safe=content.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+ w.document.write('<html><head><meta charset="UTF-8"><title>Sənəd</title></head><body><pre style="white-space:pre-wrap;font-family:Arial">'+safe+'</pre></body></html>');
+ w.document.close();
+ w.focus();
+ w.print();
+});
+
+document.getElementById('clear').addEventListener('click',()=>{
+ fileInput.value='';
+ selectedFile=null;
+ details.textContent='Hələ fayl seçilməyib.';
+ preview.textContent='Sənədin məzmunu burada görünəcək.';
+ status.textContent='Sistem hazırdır.';
+ readBtn.disabled=true;
+ printBtn.disabled=true;
+});
+</script>
+</body>
+  </html>
+  
