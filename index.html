@@ -164,7 +164,6 @@ else{
  },500);
  setTimeout(()=>{clearInterval(check);if(!ready())setStatus('PDF mühərriki yüklənmədi. İnternet bağlantısını yoxla və səhifəni yenilə.');},12000);
 }
-</script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("./sw.js")
